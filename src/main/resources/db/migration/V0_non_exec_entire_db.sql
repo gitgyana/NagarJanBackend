@@ -1,3 +1,5 @@
+-- MASTER TABLES
+
 CREATE TABLE users
 (
     user_id    BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -223,5 +225,3 @@ CREATE TABLE heatmap_data
     FOREIGN KEY (location_id) REFERENCES locations (location_id),
     FOREIGN KEY (category_id) REFERENCES categories (category_id)
 );
-
-SET FOREIGN_KEY_CHECKS = 1;
