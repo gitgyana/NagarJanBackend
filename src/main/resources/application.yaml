@@ -2,13 +2,13 @@ spring:
     application:
         name: app
     datasource:
-        url: ${DATABASE_URL}
-        username: ${DATABASE_NAME}
-        password: ${DATABASE_PWD}
+        url: jdbc:mysql://localhost:3306/nagarjan?createDatabaseIfNotExist=true
+        username: root
+        password: asdfghjkl
     jwt:
-        secret: ${JWT_SECRET}
+        secret: 8qtugbynq87dtyn278ynw87oeyfnm9pf8yndmq9pmq9fpoinmyg2ujsavxuoasbkxgou3
     allowed:
-        origin: ${ALLOWED_ORIGIN}
+        origin: http://localhost:4200
     jpa:
         show-sql: true
 
