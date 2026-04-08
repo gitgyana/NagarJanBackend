@@ -20,6 +20,16 @@ public class GrievanceService {
 
     public void createGrievance(CreateGrievanceRequest request) {
 
+        String content = request.content();
+
+        boolean isSpam = isSpam(content);
+
+        GrievanceType type = detectType(content);
+
+        String generatedTitle = generateTitle(type, content);
+
+        double confidence = (type == GrievanceType.UNKNOWN) ? 0.3 : 0.9;
+
         Location location = locationRepo.findById(request.locationId())
                 .orElseThrow(() -> new RuntimeException("Location not found"));
 
@@ -31,8 +41,8 @@ public class GrievanceService {
 
         GrievancesRaw raw = GrievancesRaw.builder()
                 .source(mapSource(request.source()))
-                .rawContent(request.content())
-                .mediaTextContent(request.content())
+                .rawContent(content)
+                .mediaTextContent(content)
                 .timestamp(LocalDateTime.now())
                 .location(location)
                 .status(GrievanceStatusRaw.INGESTED)
@@ -42,14 +52,16 @@ public class GrievanceService {
 
         Grievances grievance = Grievances.builder()
                 .raw(raw)
-                .title(request.title())
-                .description(request.content())
+                .title(generatedTitle)
+                .description(content)
                 .citizen(citizen)
                 .location(location)
                 .status(GrievanceStatus.OPEN)
                 .build();
 
         grievanceRepo.save(grievance);
+
+        System.out.println("TYPE: " + type + " | CONFIDENCE: " + confidence + " | SPAM: " + isSpam);
     }
 
     private GrievanceSource mapSource(String source) {
@@ -59,5 +71,57 @@ public class GrievanceService {
             case "PHONE" -> GrievanceSource.IVR;
             default -> GrievanceSource.APP;
         };
+    }
+
+
+    private GrievanceType detectType(String content) {
+
+        String text = content.toLowerCase();
+
+        if (text.contains("water") || text.contains("pipe") || text.contains("leak")) {
+            return GrievanceType.WATER;
+        }
+
+        if (text.contains("road") || text.contains("pothole")) {
+            return GrievanceType.ROADS;
+        }
+
+        if (text.contains("electric") || text.contains("power") || text.contains("light")) {
+            return GrievanceType.ELECTRICITY;
+        }
+
+        if (text.contains("garbage") || text.contains("waste") || text.contains("drain")) {
+            return GrievanceType.SANITATION;
+        }
+
+        return GrievanceType.UNKNOWN;
+    }
+
+    private String generateTitle(GrievanceType type, String content) {
+
+        return switch (type) {
+            case WATER -> "Water Issue Reported";
+            case ROADS -> "Road / Pothole Issue";
+            case ELECTRICITY -> "Electricity Problem";
+            case SANITATION -> "Sanitation Complaint";
+            default -> content.length() > 30
+                    ? content.substring(0, 30) + "..."
+                    : content;
+        };
+    }
+
+    private boolean isSpam(String content) {
+
+        if (content == null || content.trim().length() < 5) {
+            return true;
+        }
+
+        String text = content.toLowerCase();
+
+        if (text.matches(".*(asdf|qwerty|12345|testtest).*")) {
+            return true;
+        }
+
+        return false;
     }
 }
