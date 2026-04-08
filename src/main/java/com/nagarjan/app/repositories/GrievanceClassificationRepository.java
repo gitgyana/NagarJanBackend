@@ -1,12 +1,14 @@
 package com.nagarjan.app.repositories;
 
 import com.nagarjan.app.entities.GrievanceClassification;
+import com.nagarjan.app.entities.Grievances;
 import com.nagarjan.app.entities.enums.ClassificationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public interface GrievanceClassificationRepository extends JpaRepository<GrievanceClassification, Long> {
     long countByStatus(ClassificationStatus status);
@@ -24,4 +26,6 @@ public interface GrievanceClassificationRepository extends JpaRepository<Grievan
                 ORDER BY total_count DESC
             """, nativeQuery = true)
     List<Map<String, Object>> getDashboardClassificationData();
+
+    Optional<GrievanceClassification> findTopByGrievance(Grievances grievance);
 }
