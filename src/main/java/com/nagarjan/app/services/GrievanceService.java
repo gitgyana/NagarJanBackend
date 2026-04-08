@@ -1,6 +1,7 @@
 package com.nagarjan.app.services;
 
 import com.nagarjan.app.dtos.CreateGrievanceRequest;
+import com.nagarjan.app.dtos.GeminiResponseDTO;
 import com.nagarjan.app.entities.*;
 import com.nagarjan.app.entities.enums.*;
 import com.nagarjan.app.repositories.*;
@@ -17,6 +18,17 @@ public class GrievanceService {
     private final GrievancesRepository grievanceRepo;
     private final LocationRepository locationRepo;
     private final UsersRepository usersRepo;
+    private final GeminiService geminiService;
+
+    private GrievanceType mapCategory(String category) {
+        return switch (category.toUpperCase()) {
+            case "WATER" -> GrievanceType.WATER;
+            case "ROADS" -> GrievanceType.ROADS;
+            case "ELECTRICITY" -> GrievanceType.ELECTRICITY;
+            case "SANITATION" -> GrievanceType.SANITATION;
+            default -> GrievanceType.UNKNOWN;
+        };
+    }
 
     public void createGrievance(CreateGrievanceRequest request) {
 
@@ -24,11 +36,12 @@ public class GrievanceService {
 
         boolean isSpam = isSpam(content);
 
-        GrievanceType type = detectType(content);
+        GeminiResponseDTO ai = geminiService.analyzeText(content);
 
-        String generatedTitle = generateTitle(type, content);
+        GrievanceType type = mapCategory(ai.category());
+        String generatedTitle = ai.title();
+        double confidence = ai.confidence();
 
-        double confidence = (type == GrievanceType.UNKNOWN) ? 0.3 : 0.9;
 
         Location location = locationRepo.findById(request.locationId())
                 .orElseThrow(() -> new RuntimeException("Location not found"));
