@@ -1,3 +1,16 @@
 spring:
     application:
         name: app
+    datasource:
+        url: ${DATABASE_URL}
+        username: ${DATABASE_NAME}
+        password: ${DATABASE_PWD}
+    jwt:
+        secret: ${JWT_SECRET}
+    allowed:
+        origin: ${ALLOWED_ORIGIN}
+    jpa:
+        show-sql: true
+
+otpauth:
+    validforminutes: 5
