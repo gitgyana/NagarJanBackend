@@ -1,7 +1,6 @@
 package com.nagarjan.app.entities.enums;
 
 import com.nagarjan.app.entities.Grievances;
-import com.nagarjan.app.repositories.PriorityFactorName;
 import jakarta.persistence.*;
 import lombok.*;
 

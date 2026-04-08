@@ -1,4 +1,4 @@
-package com.nagarjan.app.repositories;
+package com.nagarjan.app.entities.enums;
 
 public enum PriorityFactorName {
     AGE,
